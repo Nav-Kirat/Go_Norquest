@@ -40,3 +40,28 @@ This model segments dealers by their inventory and revenue from new and used car
 ## Price Analysis
 1. **Price Categories**: Vehicles are segmented into `budget`, `mid_range`, and `high_end` categories based on the `price` column.
 2. **Price Sensitivity Analysis**: For each dealer, the average vehicle price and counts for each price category are calculated, enabling analysis of dealership positioning within the market.
+
+## Power BI Dashboard: Dealership Sales and Inventory Analysis
+
+This Power BI dashboard provides an interactive view of vehicle sales and dealership performance across the Edmonton region. It consolidates various sales metrics, allowing users to explore dealership data geographically and gain insights into sales patterns and average vehicle prices by region. Here’s a breakdown of the dashboard components:
+
+### Key Dashboard Features
+
+- **Map Visualization of Dealerships**:
+  - The map displays dealerships across Edmonton, color-coded by different clusters. This feature helps users quickly identify high-revenue areas and compare dealership performance geographically.
+
+- **Filters for Customized Analysis**:
+  - **Stock Type, Make, and Model** filters allow users to refine the view to specific types of vehicles.
+  - **Vehicle Age Slider** enables filtering by the age of vehicles in the inventory.
+  - **Gross Sales and Total Sales Filters** offer control over the dealership selection by sales volume, helping focus on high-performing dealers or those within specific sales ranges.
+
+- **Dealership Summary Panel**:
+  - Highlights overall metrics, such as:
+    - **Total Gross Sales Value**: Shows the aggregated gross revenue from vehicle sales.
+    - **Total Sales (Cars)**: Displays the number of vehicles sold.
+    - **Most Sold Model**: Indicates the most popular vehicle model by sales.
+  - Useful for tracking dealership performance at a high level and identifying the top-selling models.
+
+- **Average Car Price by Region**:
+  - A bar chart summarizing the average car price in different Edmonton regions, providing insights into regional price trends. For instance, South Edmonton and Greater Edmonton suburbs have higher average prices, while Downtown Edmonton shows lower average prices.
+
