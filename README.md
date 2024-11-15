@@ -1,6 +1,8 @@
 
 # Project - Go_Norquest
 
+![WhatsApp Image 2024-11-07 at 10 50 54 A](https://github.com/user-attachments/assets/de9ba237-9d42-4852-a3ee-57a0a0ed7e3d)
+
 ## Description
 This project leverages a dataset compiled by the Business Intelligence Team at Go Auto, utilizing APIs from the Canadian Black Book (CBB). The dataset includes vehicle listings—both active and sold—across various dealerships in Edmonton within the last 30 days. Detailed information about each vehicle is provided, including year, make, model, mileage, price, and dealership information such as location and listing specifics. 
 
