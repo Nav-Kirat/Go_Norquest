@@ -1,6 +1,6 @@
 import streamlit as st
 
-
+st.logo('image.png')
 # Set page configuration
 st.set_page_config(page_title="Go Norquest")
 
@@ -8,7 +8,7 @@ st.set_page_config(page_title="Go Norquest")
 st.markdown(
     """
     <div style="background-color:#E52525;padding:10px;border-radius:10px">
-        <h1 style="color:white;text-align:center;">🚗 Go Auto Sales Analysis Dashboard 🚗</h1>
+        <h1 style="color:white;text-align:center;">🚗 Go Norquest 🚗</h1>
     </div>
     """, 
     unsafe_allow_html=True
