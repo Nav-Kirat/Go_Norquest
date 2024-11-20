@@ -48,7 +48,6 @@ st.markdown(
     - **Inventory distribution can be optimized across Edmonton.**
     - **Operational efficiency** is improved, ultimately leading to increased revenue!
     
-    ---
     """
 )
 
