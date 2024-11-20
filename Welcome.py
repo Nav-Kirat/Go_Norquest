@@ -2,12 +2,12 @@ import streamlit as st
 
 
 # Set page configuration
-st.set_page_config(page_title="Go Auto Sales Analysis", layout="wide")
+st.set_page_config(page_title="Go Auto Sales Analysis")
 
 # Title Section
 st.markdown(
     """
-    <div style="background-color:#4CAF50;padding:10px;border-radius:10px">
+    <div style="background-color:#E52525;padding:10px;border-radius:10px">
         <h1 style="color:white;text-align:center;">🚗 Go Auto Sales Analysis Dashboard 🚗</h1>
     </div>
     """, 
@@ -62,11 +62,3 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Add a footer or signature
-st.markdown(
-    """
-    ---
-    ### 📊 Ready to dive into the data? Explore the dashboard to uncover insights that drive success!
-    """,
-    unsafe_allow_html=True
-)
