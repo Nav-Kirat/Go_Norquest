@@ -2,7 +2,7 @@ import streamlit as st
 
 
 # Set page configuration
-st.set_page_config(page_title="Go Auto Sales Analysis")
+st.set_page_config(page_title="Go Norquest")
 
 # Title Section
 st.markdown(
@@ -50,15 +50,5 @@ st.markdown(
     
     ---
     """
-)
-
-# Add a visual element (optional image or icon)
-st.markdown(
-    """
-    <div style="text-align:center;">
-        <img src="https://cdn-icons-png.flaticon.com/512/1048/1048312.png" width="300" alt="Car Sales Icon">
-    </div>
-    """, 
-    unsafe_allow_html=True
 )
 
