@@ -1,6 +1,10 @@
 import streamlit as st
+
 html_file_path = "Dealership-map.html"
 st.set_page_config(page_title="Dealership-map",layout="wide")
+
+st.title("🗺️ Dealerships in Edmonton")
+
 # Read the HTML file
 try:
     with open(html_file_path, "r", encoding="utf-8") as f:
