@@ -34,55 +34,59 @@ agg_data_used['cluster'] = kmeans_used_cars.fit_predict(X_used_scaled)
 
 # Preprocess New Cars Data
 new_cars = df_new
-agg_data_new = new_cars.groupby(['region_label', 'drivetrain_from_vin']).agg(
+agg_data_new = new_cars.groupby('region_label').agg(
     avg_price=('price', 'mean'),
+    avg_mileage=('mileage', 'mean'),
     total_sales=('vin', 'count'),
 ).reset_index()
 
-encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
-drivetrain_encoded = encoder.fit_transform(agg_data_new[['drivetrain_from_vin']])
-encoded_drivetrain_columns = encoder.get_feature_names_out(['drivetrain_from_vin'])
-drivetrain_encoded_df = pd.DataFrame(drivetrain_encoded, columns=encoded_drivetrain_columns)
-
-agg_data_new = pd.concat([agg_data_new, drivetrain_encoded_df], axis=1)
 scaler_new_cars = MinMaxScaler()
-X_new = agg_data_new[['avg_price'] + list(encoded_drivetrain_columns)]
+X_new = agg_data_new[['avg_price', 'avg_mileage']]
 X_new_scaled = scaler_new_cars.fit_transform(X_new)
+X_new_scaled[:, 1] *= 1.5
 
 kmeans_new_cars = KMeans(n_clusters=6, random_state=42)
 agg_data_new['cluster'] = kmeans_new_cars.fit_predict(X_new_scaled)
 
-# Define Prediction Functions
+# Function to Predict Best Regions for Used Cars
 def predict_used_car_region(price, mileage, drivetrain, make=None):
     car_features = np.array([[price, mileage]])
     car_features_scaled = scaler_used_cars.transform(car_features)
     car_features_scaled[:, 1] *= 1.5
     predicted_cluster = kmeans_used_cars.predict(car_features_scaled)[0]
     best_regions = agg_data_used[agg_data_used['cluster'] == predicted_cluster]
-    return best_regions[['region_label', 'avg_price', 'avg_mileage', 'total_sales']]
-
-def predict_new_car_region(price, mileage, drivetrain, make=None):
-    # Prepare the input features for new cars
-    car_features = np.array([[price, mileage]])
-    car_features_scaled = scaler_used_cars.transform(car_features)
-    car_features_scaled[:, 1] *= 1.5  # Apply the same weighting as used for training
-
-    # Predict the cluster for the input car
-    predicted_cluster = kmeans_used_cars.predict(car_features_scaled)[0]
-
-    # Find the regions in the predicted cluster
-    best_regions = agg_data_used[agg_data_used['cluster'] == predicted_cluster]
-    
-    # Add any additional filtering or considerations for "make" if necessary
-    if make and "make" in agg_data_used.columns:
+    if make and "make" in df_used.columns:
         best_regions = best_regions[best_regions['make'] == make]
-
     return best_regions[['region_label', 'avg_price', 'avg_mileage', 'total_sales']]
+
+# Function to Predict Best Regions for New Cars
+def predict_new_car_region(price, mileage, drivetrain, make=None):
+    car_features = np.array([[price, mileage]])
+    car_features_scaled = scaler_new_cars.transform(car_features)
+    car_features_scaled[:, 1] *= 1.5
+    predicted_cluster = kmeans_new_cars.predict(car_features_scaled)[0]
+    best_regions = agg_data_new[agg_data_new['cluster'] == predicted_cluster]
+    if make and "make" in df_new.columns:
+        best_regions = best_regions[best_regions['make'] == make]
+    return best_regions[['region_label', 'avg_price', 'avg_mileage', 'total_sales']]
+
+# Function to Find Most Selling Car in a Region
+def find_most_selling_car(region_label, df):
+    region_cars = df[df['region_label'] == region_label]
+    most_selling = region_cars.groupby('model').agg(
+        total_sales=('vin', 'count'),
+        avg_price=('price', 'mean'),
+        avg_mileage=('mileage', 'mean')
+    ).reset_index().sort_values(by='total_sales', ascending=False)
+    if not most_selling.empty:
+        return most_selling.iloc[0]
+    else:
+        return None
 
 # Streamlit App
 st.title("🚗 Car Sales Region Predictor")
 
-# Sidebar for advanced options
+# Sidebar for Advanced Options
 st.sidebar.title("⚙️ Advanced Options")
 enable_summary = st.sidebar.checkbox("Show Prediction Summary", value=True)
 
@@ -100,13 +104,13 @@ st.write("### Enter Car Details")
 car_type = st.radio("What type of car are you selling?", options=["Used", "New"], index=0)
 car_price = st.slider("Car Price ($)", min_value=5000, max_value=100000, value=30000, step=500)
 
-# Optional dropdown for car make
+# Optional Dropdown for Car Make
 car_make = st.selectbox("Car Make (Optional)", options=["None"] + car_makes)
 
-# Drivetrain input
-car_drivetrain = st.selectbox("Select Drivetrain", options=encoder.categories_[0])
+# Drivetrain Input
+car_drivetrain = st.selectbox("Select Drivetrain", options=['FWD', 'RWD', 'AWD', '4WD'])
 
-# Mileage input
+# Mileage Input
 car_mileage = st.slider("Car Mileage (miles)", min_value=0, max_value=200000, value=50000, step=5000)
 
 # Submit Button
@@ -117,14 +121,25 @@ if submitted:
     if car_type == "Used":
         best_regions = predict_used_car_region(car_price, car_mileage, car_drivetrain, make=car_make)
         st.write("### Best Regions for Selling a Used Car")
+        dataset = df_used
     else:
         best_regions = predict_new_car_region(car_price, car_mileage, car_drivetrain, make=car_make)
         st.write("### Best Regions for Selling a New Car")
+        dataset = df_new
 
-    # Display DataFrame
+    # Display Best Regions
     st.dataframe(best_regions)
 
-    # Optional Summary
-    if enable_summary:
-        total_sales = best_regions['total_sales'].sum()
-        st.write(f"📊 Total Sales in Recommended Regions: **{total_sales}**")
+    # Find and Display Most Selling Car for Each Region
+    st.write("### Most Selling Cars in Recommended Regions")
+    for region in best_regions['region_label']:
+        most_selling = find_most_selling_car(region, dataset)
+        if most_selling is not None:
+            st.write(f"**Region:** {region}")
+            st.write(f"**Most Selling Car Model:** {most_selling['model']}")
+            st.write(f"**Total Sales:** {most_selling['total_sales']}")
+            st.write(f"**Average Price:** ${most_selling['avg_price']:.2f}")
+            st.write(f"**Average Mileage:** {most_selling['avg_mileage']:.2f} miles")
+            st.write("---")
+        else:
+            st.write(f"No data available for region: {region}")
