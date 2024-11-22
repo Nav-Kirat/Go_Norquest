@@ -1,7 +1,2 @@
-import sys
-import os
-import streamlit as st
-
-st.write(f"Python Executable: {sys.executable}")
-st.write(f"Python Version: {sys.version}")
-st.write(f"Environment PATH: {os.environ['PATH']}")
+from sklearn.cluster import KMeans
+print("Scikit-learn is installed and working!")
