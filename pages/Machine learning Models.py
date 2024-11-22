@@ -62,29 +62,22 @@ def predict_used_car_region(price, mileage, drivetrain, make=None):
     return best_regions[['region_label', 'avg_price', 'avg_mileage', 'total_sales']]
 
 def predict_new_car_region(price, mileage, drivetrain, make=None):
-    # One-hot encode the drivetrain input
-    drivetrain_encoded_input = encoder.transform([[drivetrain]])
-    
-    # Ensure the input features match the scaler's expectations
-    car_features = np.concatenate([[price, mileage], drivetrain_encoded_input[0]])
-    
-    # Validate that the dimensions of car_features match the scaler's input
-    if car_features.shape[0] != scaler_new_cars.n_features_in_:
-        raise ValueError(
-            f"Feature mismatch: Expected {scaler_new_cars.n_features_in_} features, but got {car_features.shape[0]}. "
-            "Ensure that all required features are provided, including the one-hot encoded drivetrain."
-        )
-    
-    # Scale the input car features
-    car_features_scaled = scaler_new_cars.transform([car_features])
-    
+    # Prepare the input features for new cars
+    car_features = np.array([[price, mileage]])
+    car_features_scaled = scaler_used_cars.transform(car_features)
+    car_features_scaled[:, 1] *= 1.5  # Apply the same weighting as used for training
+
     # Predict the cluster for the input car
-    predicted_cluster = kmeans_new_cars.predict(car_features_scaled)[0]
-    
+    predicted_cluster = kmeans_used_cars.predict(car_features_scaled)[0]
+
     # Find the regions in the predicted cluster
-    best_regions = agg_data_new[agg_data_new['cluster'] == predicted_cluster]
+    best_regions = agg_data_used[agg_data_used['cluster'] == predicted_cluster]
     
-    return best_regions[['region_label', 'avg_price', 'total_sales']]
+    # Add any additional filtering or considerations for "make" if necessary
+    if make and "make" in agg_data_used.columns:
+        best_regions = best_regions[best_regions['make'] == make]
+
+    return best_regions[['region_label', 'avg_price', 'avg_mileage', 'total_sales']]
 
 # Streamlit App
 st.title("🚗 Car Sales Region Predictor")
