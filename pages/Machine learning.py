@@ -116,10 +116,10 @@ submitted = st.button("🔮 Predict Best Region")
 if submitted:
     if car_type == "Used":
         best_regions = predict_used_car_region(car_price, car_mileage, car_drivetrain, make=car_make)
-        st.write("### Best Regions for Selling a Used Car")
+        st.write("### Best Regions for Used Car")
     else:
         best_regions = predict_new_car_region(car_price, car_mileage, car_drivetrain, make=car_make)
-        st.write("### Best Regions for Selling a New Car")
+        st.write("### Best Regions for New Car")
 
     # Display DataFrame
     st.dataframe(best_regions)
