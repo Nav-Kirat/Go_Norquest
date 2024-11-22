@@ -56,7 +56,7 @@ kmeans_new_cars = KMeans(n_clusters=6, random_state=42)
 agg_data_new['cluster'] = kmeans_new_cars.fit_predict(X_new_scaled)
 
 # Define Prediction Functions
-def predict_used_car_region(price, mileage, days_on_market):
+def predict_used_car_region(price, mileage, days_on_market, drivetrain):
     car_features = np.array([[price, mileage, days_on_market]])
     car_features_scaled = scaler_used_cars.transform(car_features)
     car_features_scaled[:, 1] *= 1.5
@@ -64,9 +64,9 @@ def predict_used_car_region(price, mileage, days_on_market):
     best_regions = agg_data_used[agg_data_used['cluster'] == predicted_cluster]
     return best_regions[['region_label', 'avg_price', 'avg_mileage', 'avg_days_on_market', 'total_sales']]
 
-def predict_new_car_region(price, days_on_market, drivetrain):
+def predict_new_car_region(price, mileage, days_on_market, drivetrain):
     drivetrain_encoded_input = encoder.transform([[drivetrain]])
-    car_features = np.concatenate([[price, days_on_market], drivetrain_encoded_input[0]])
+    car_features = np.concatenate([[price, mileage, days_on_market], drivetrain_encoded_input[0]])
     car_features_scaled = scaler_new_cars.transform([car_features])
     car_features_scaled[:, 1] *= 1.5
     predicted_cluster = kmeans_new_cars.predict(car_features_scaled)[0]
@@ -76,47 +76,40 @@ def predict_new_car_region(price, days_on_market, drivetrain):
 # Streamlit App
 st.title("🚗 Car Sales Region Predictor")
 
-# Sidebar for advanced options
-st.sidebar.title("🚀 Advanced Options")
-st.sidebar.write("Customize your predictions with additional features.")
-enable_chart = st.sidebar.checkbox("Show visual representation", value=True)
-enable_summary = st.sidebar.checkbox("Show summary of predictions", value=True)
+# Sidebar for additional settings
+st.sidebar.title("⚙️ Advanced Options")
+enable_summary = st.sidebar.checkbox("Show Prediction Summary", value=True)
 
-# Create Multi-Step Form
-st.write("### Step 1: Select Car Type and Details")
-car_type = st.radio("What type of car do you want to sell?", options=["Used", "New"], index=0)
+# Create Form
+st.write("### Enter Car Details")
+car_type = st.radio("What type of car are you selling?", options=["Used", "New"], index=0)
+car_price = st.slider("Car Price ($)", min_value=5000, max_value=100000, value=30000, step=500)
 
-st.write("### Step 2: Provide Car Details")
-car_price = st.slider("Set the car price ($)", min_value=5000, max_value=100000, value=30000, step=1000)
+# Drivetrain input
+car_drivetrain = st.selectbox("Select Drivetrain", options=encoder.categories_[0])
 
-if car_type == "Used":
-    car_mileage = st.slider("Set the car mileage (miles)", min_value=0, max_value=200000, value=50000, step=5000)
-    car_days_on_market = st.number_input("Expected days on market", min_value=0, value=30, step=1)
-else:
-    car_drivetrain = st.selectbox("Select the drivetrain", options=encoder.categories_[0])
-    car_days_on_market = st.number_input("Expected days on market", min_value=0, value=30, step=1)
+# Mileage input
+car_mileage = st.slider("Car Mileage (miles)", min_value=0, max_value=200000, value=50000, step=5000)
 
-# Submit button
+# Days on Market input
+car_days_on_market = st.number_input("Expected Days on Market", min_value=0, value=30, step=1)
+
+# Submit Button
 submitted = st.button("🔮 Predict Best Region")
 
 # Handle Predictions
 if submitted:
-    st.write("### Results")
     if car_type == "Used":
-        best_regions = predict_used_car_region(car_price, car_mileage, car_days_on_market)
-        st.write("#### Best Regions for Selling a Used Car")
+        best_regions = predict_used_car_region(car_price, car_mileage, car_days_on_market, car_drivetrain)
+        st.write("### Best Regions for Selling a Used Car")
     else:
-        best_regions = predict_new_car_region(car_price, car_days_on_market, car_drivetrain)
-        st.write("#### Best Regions for Selling a New Car")
-    
+        best_regions = predict_new_car_region(car_price, car_mileage, car_days_on_market, car_drivetrain)
+        st.write("### Best Regions for Selling a New Car")
+
+    # Display DataFrame
     st.dataframe(best_regions)
 
-    # Optional visual representation
-    if enable_chart:
-        st.write("#### Visual Representation of Predictions")
-        st.bar_chart(best_regions[['region_label', 'avg_price']].set_index('region_label'))
-
-    # Optional summary
+    # Optional Summary
     if enable_summary:
         total_sales = best_regions['total_sales'].sum()
-        st.write(f"📈 Total Sales in Recommended Regions: **{total_sales}**")
+        st.write(f"📊 Total Sales in Recommended Regions: **{total_sales}**")
