@@ -50,25 +50,49 @@ agg_data_new['cluster'] = kmeans_new_cars.fit_predict(X_new_scaled)
 
 # Function to Predict Best Regions for Used Cars
 def predict_used_car_region(price, mileage, drivetrain, make=None):
+    # Filter original dataset by make if specified
+    filtered_data = df_used if make is None else df_used[df_used['make'] == make]
+    
+    # Aggregate filtered data by region
+    agg_data = filtered_data.groupby('region_label').agg(
+        avg_price=('price', 'mean'),
+        avg_mileage=('mileage', 'mean'),
+        total_sales=('vin', 'count')
+    ).reset_index()
+    
+    # Scale and cluster the aggregated data
     car_features = np.array([[price, mileage]])
     car_features_scaled = scaler_used_cars.transform(car_features)
     car_features_scaled[:, 1] *= 1.5
     predicted_cluster = kmeans_used_cars.predict(car_features_scaled)[0]
-    best_regions = agg_data_used[agg_data_used['cluster'] == predicted_cluster]
-    if make and "make" in df_used.columns:
-        best_regions = best_regions[best_regions['make'] == make]
+    
+    # Get best regions from aggregated data
+    best_regions = agg_data[agg_data['cluster'] == predicted_cluster]
     return best_regions[['region_label', 'avg_price', 'avg_mileage', 'total_sales']]
+
 
 # Function to Predict Best Regions for New Cars
 def predict_new_car_region(price, mileage, drivetrain, make=None):
+    # Filter original dataset by make if specified
+    filtered_data = df_new if make is None else df_new[df_new['make'] == make]
+    
+    # Aggregate filtered data by region
+    agg_data = filtered_data.groupby('region_label').agg(
+        avg_price=('price', 'mean'),
+        avg_mileage=('mileage', 'mean'),
+        total_sales=('vin', 'count')
+    ).reset_index()
+    
+    # Scale and cluster the aggregated data
     car_features = np.array([[price, mileage]])
     car_features_scaled = scaler_new_cars.transform(car_features)
     car_features_scaled[:, 1] *= 1.5
     predicted_cluster = kmeans_new_cars.predict(car_features_scaled)[0]
-    best_regions = agg_data_new[agg_data_new['cluster'] == predicted_cluster]
-    if make and "make" in df_new.columns:
-        best_regions = best_regions[best_regions['make'] == make]
+    
+    # Get best regions from aggregated data
+    best_regions = agg_data[agg_data['cluster'] == predicted_cluster]
     return best_regions[['region_label', 'avg_price', 'avg_mileage', 'total_sales']]
+
 
 # Function to Find Most Selling Car in a Region
 def find_most_selling_car(region_label, df):
