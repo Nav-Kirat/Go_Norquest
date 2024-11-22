@@ -5,7 +5,7 @@ try:
     import sklearn
 except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "scikit-learn"])
-    
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -74,28 +74,49 @@ def predict_new_car_region(price, days_on_market, drivetrain):
     return best_regions[['region_label', 'avg_price', 'avg_days_on_market', 'total_sales']]
 
 # Streamlit App
-st.title("Car Sales Region Predictor")
+st.title("🚗 Car Sales Region Predictor")
 
-# Create Form
-with st.form("car_form"):
-    car_type = st.selectbox("Car Type", options=["Used", "New"])
-    car_price = st.number_input("Car Price", min_value=0, value=50000, step=1000)
-    car_days_on_market = st.number_input("Days on Market", min_value=0, value=45, step=1)
-    
-    if car_type == "New":
-        car_drivetrain = st.selectbox("Drivetrain", options=encoder.categories_[0])
-    else:
-        car_mileage = st.number_input("Car Mileage", min_value=0, value=50000, step=1000)
-    
-    submitted = st.form_submit_button("Predict Best Region")
+# Sidebar for advanced options
+st.sidebar.title("🚀 Advanced Options")
+st.sidebar.write("Customize your predictions with additional features.")
+enable_chart = st.sidebar.checkbox("Show visual representation", value=True)
+enable_summary = st.sidebar.checkbox("Show summary of predictions", value=True)
 
-# Handle Form Submission
+# Create Multi-Step Form
+st.write("### Step 1: Select Car Type and Details")
+car_type = st.radio("What type of car do you want to sell?", options=["Used", "New"], index=0)
+
+st.write("### Step 2: Provide Car Details")
+car_price = st.slider("Set the car price ($)", min_value=5000, max_value=100000, value=30000, step=1000)
+
+if car_type == "Used":
+    car_mileage = st.slider("Set the car mileage (miles)", min_value=0, max_value=200000, value=50000, step=5000)
+    car_days_on_market = st.number_input("Expected days on market", min_value=0, value=30, step=1)
+else:
+    car_drivetrain = st.selectbox("Select the drivetrain", options=encoder.categories_[0])
+    car_days_on_market = st.number_input("Expected days on market", min_value=0, value=30, step=1)
+
+# Submit button
+submitted = st.button("🔮 Predict Best Region")
+
+# Handle Predictions
 if submitted:
+    st.write("### Results")
     if car_type == "Used":
         best_regions = predict_used_car_region(car_price, car_mileage, car_days_on_market)
-        st.write("Best regions for selling a used car:")
+        st.write("#### Best Regions for Selling a Used Car")
     else:
         best_regions = predict_new_car_region(car_price, car_days_on_market, car_drivetrain)
-        st.write("Best regions for selling a new car:")
+        st.write("#### Best Regions for Selling a New Car")
     
     st.dataframe(best_regions)
+
+    # Optional visual representation
+    if enable_chart:
+        st.write("#### Visual Representation of Predictions")
+        st.bar_chart(best_regions[['region_label', 'avg_price']].set_index('region_label'))
+
+    # Optional summary
+    if enable_summary:
+        total_sales = best_regions['total_sales'].sum()
+        st.write(f"📈 Total Sales in Recommended Regions: **{total_sales}**")
