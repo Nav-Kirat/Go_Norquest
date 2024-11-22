@@ -56,22 +56,26 @@ kmeans_new_cars = KMeans(n_clusters=6, random_state=42)
 agg_data_new['cluster'] = kmeans_new_cars.fit_predict(X_new_scaled)
 
 # Define Prediction Functions
-def predict_used_car_region(price, mileage, days_on_market, drivetrain):
-    car_features = np.array([[price, mileage, days_on_market]])
+def predict_used_car_region(price, mileage, drivetrain, car_make=None):
+    car_features = np.array([[price, mileage]])
     car_features_scaled = scaler_used_cars.transform(car_features)
     car_features_scaled[:, 1] *= 1.5
     predicted_cluster = kmeans_used_cars.predict(car_features_scaled)[0]
     best_regions = agg_data_used[agg_data_used['cluster'] == predicted_cluster]
-    return best_regions[['region_label', 'avg_price', 'avg_mileage', 'avg_days_on_market', 'total_sales']]
+    if car_make:
+        st.write(f"Car Make: {car_make} factored in for insights.")
+    return best_regions[['region_label', 'avg_price', 'avg_mileage', 'total_sales']]
 
-def predict_new_car_region(price, mileage, days_on_market, drivetrain):
+def predict_new_car_region(price, mileage, drivetrain, car_make=None):
     drivetrain_encoded_input = encoder.transform([[drivetrain]])
-    car_features = np.concatenate([[price, mileage, days_on_market], drivetrain_encoded_input[0]])
+    car_features = np.concatenate([[price, mileage], drivetrain_encoded_input[0]])
     car_features_scaled = scaler_new_cars.transform([car_features])
     car_features_scaled[:, 1] *= 1.5
     predicted_cluster = kmeans_new_cars.predict(car_features_scaled)[0]
     best_regions = agg_data_new[agg_data_new['cluster'] == predicted_cluster]
-    return best_regions[['region_label', 'avg_price', 'avg_days_on_market', 'total_sales']]
+    if car_make:
+        st.write(f"Car Make: {car_make} factored in for insights.")
+    return best_regions[['region_label', 'avg_price', 'total_sales']]
 
 # Streamlit App
 st.title("🚗 Car Sales Region Predictor")
@@ -91,8 +95,8 @@ car_drivetrain = st.selectbox("Select Drivetrain", options=encoder.categories_[0
 # Mileage input
 car_mileage = st.slider("Car Mileage (miles)", min_value=0, max_value=200000, value=50000, step=5000)
 
-# Days on Market input
-car_days_on_market = st.number_input("Expected Days on Market", min_value=0, value=30, step=1)
+# Optional Car Make input
+car_make = st.text_input("Car Make (Optional)", placeholder="Enter car make, e.g., Toyota, Ford")
 
 # Submit Button
 submitted = st.button("🔮 Predict Best Region")
@@ -100,10 +104,10 @@ submitted = st.button("🔮 Predict Best Region")
 # Handle Predictions
 if submitted:
     if car_type == "Used":
-        best_regions = predict_used_car_region(car_price, car_mileage, car_days_on_market, car_drivetrain)
+        best_regions = predict_used_car_region(car_price, car_mileage, car_drivetrain, car_make)
         st.write("### Best Regions for Selling a Used Car")
     else:
-        best_regions = predict_new_car_region(car_price, car_mileage, car_days_on_market, car_drivetrain)
+        best_regions = predict_new_car_region(car_price, car_mileage, car_drivetrain, car_make)
         st.write("### Best Regions for Selling a New Car")
 
     # Display DataFrame
