@@ -1,103 +1,107 @@
 import streamlit as st
 import pandas as pd
 
+# Path to the HTML file containing the map
+html_file_path = "Dealership-map.html"
+
 # Configure the Streamlit page
-st.set_page_config(page_title="Car Sales Analysis", layout="wide")
+st.set_page_config(page_title="Dealership and Sales Insights", layout="wide")
 
 # Title for the page
-st.title("🚗 Car Sales Analysis in Edmonton")
+st.title("🚗 Dealerships and Sales Insights in Edmonton")
 
-# Path to the HTML file containing the map
-html_new_map_path = "Dealership-map-new.html"
-html_used_map_path = "Dealership-map-used.html"
-
-# Load datasets
-new_cars_file_path = "new_cars.csv"
-used_cars_file_path = "used_cars.csv"
-
-# Define the makes to focus on
-new_car_makes = ['Ford', 'GMC', 'Ram', 'Chevrolet', 'Jeep', 'Nissan']
-used_car_makes = ['Ford', 'Chevrolet', 'Hyundai', 'Honda', 'Toyota', 'Ram']
-
-# Load and process the datasets
+# Section 1: Map
+st.subheader("🗺️ Dealership Locations")
 try:
-    df_new = pd.read_csv(new_cars_file_path)
-    df_used = pd.read_csv(used_cars_file_path)
+    with open(html_file_path, "r", encoding="utf-8") as f:
+        map_html = f.read()
+    # Embed the HTML map in Streamlit
+    st.components.v1.html(map_html, height=600, scrolling=True)
+except FileNotFoundError:
+    st.error("The HTML file containing the map was not found. Please check the file path.")
 
-    # Validate required columns
-    required_columns = ['region_label', 'make', 'vin']
-    for df, car_type in [(df_new, "new"), (df_used, "used")]:
-        if not all(col in df.columns for col in required_columns):
-            st.error(f"The {car_type} cars dataset must include the following columns: {', '.join(required_columns)}")
-            st.stop()
+# Section 2: Sales Analysis for New Cars
+st.markdown("---")
+st.header("📊 Sales Insights: New Cars")
+st.subheader("Top 10 Regions for New Car Sales (Selected Makes)")
 
-    # Filter new and used cars by selected makes
-    df_new_filtered = df_new[df_new['make'].isin(new_car_makes)]
-    df_used_filtered = df_used[df_used['make'].isin(used_car_makes)]
+# Load New Cars Dataset
+new_cars_path = "new_cars.csv"  # Update with your actual dataset path
+new_cars_makes = ['Ford', 'GMC', 'Ram', 'Chevrolet', 'Jeep', 'Nissan']
 
-    # Calculate sales by region and make for new cars
-    new_region_make_sales = df_new_filtered.groupby(['region_label', 'make']).agg(
-        total_sales=('vin', 'count')
-    ).reset_index()
+try:
+    df_new = pd.read_csv(new_cars_path)
 
-    # Top 10 regions for new cars
-    top_new_regions = (
-        new_region_make_sales.groupby('region_label')['total_sales']
-        .sum()
-        .nlargest(10)
-        .index.tolist()
-    )
-    new_data_top_regions = new_region_make_sales[new_region_make_sales['region_label'].isin(top_new_regions)]
+    # Ensure required columns exist
+    required_columns_new = ['region_label', 'make', 'vin']
+    if not all(col in df_new.columns for col in required_columns_new):
+        st.error(f"The new cars dataset must include the following columns: {', '.join(required_columns_new)}")
+    else:
+        # Filter dataset by selected makes
+        df_new_filtered = df_new[df_new['make'].isin(new_cars_makes)]
 
-    # Calculate sales by region and make for used cars
-    used_region_make_sales = df_used_filtered.groupby(['region_label', 'make']).agg(
-        total_sales=('vin', 'count')
-    ).reset_index()
+        # Calculate sales by region and make
+        new_region_make_sales = df_new_filtered.groupby(['region_label', 'make']).agg(
+            total_sales=('vin', 'count')
+        ).reset_index()
 
-    # Top 10 regions for used cars
-    top_used_regions = (
-        used_region_make_sales.groupby('region_label')['total_sales']
-        .sum()
-        .nlargest(10)
-        .index.tolist()
-    )
-    used_data_top_regions = used_region_make_sales[used_region_make_sales['region_label'].isin(top_used_regions)]
+        # Find the top 10 regions by sales
+        top_new_regions = (
+            new_region_make_sales.groupby('region_label')['total_sales']
+            .sum()
+            .nlargest(10)
+            .index.tolist()
+        )
 
-    # Layout: Side-by-side maps
-    col1, col2 = st.columns(2)
+        # Filter data for the top regions
+        new_filtered_data = new_region_make_sales[new_region_make_sales['region_label'].isin(top_new_regions)]
 
-    # Embed the new cars map
-    with col1:
-        st.write("### 🗺️ Dealerships for New Cars (Selected Makes)")
-        try:
-            with open(html_new_map_path, "r", encoding="utf-8") as f:
-                new_map_html = f.read()
-            st.components.v1.html(new_map_html, height=600, scrolling=True)
-        except FileNotFoundError:
-            st.error("The HTML file for the new cars map was not found.")
-
-    # Embed the used cars map
-    with col2:
-        st.write("### 🗺️ Dealerships for Used Cars (Selected Makes)")
-        try:
-            with open(html_used_map_path, "r", encoding="utf-8") as f:
-                used_map_html = f.read()
-            st.components.v1.html(used_map_html, height=600, scrolling=True)
-        except FileNotFoundError:
-            st.error("The HTML file for the used cars map was not found.")
-
-    # Visualizations
-    st.write("## 📊 Sales by Region and Make")
-
-    # Bar chart for new cars
-    st.write("### New Cars: Top 10 Regions for Selected Makes")
-    st.bar_chart(new_data_top_regions.pivot(index='region_label', columns='make', values='total_sales').fillna(0))
-
-    # Bar chart for used cars
-    st.write("### Used Cars: Top 10 Regions for Selected Makes")
-    st.bar_chart(used_data_top_regions.pivot(index='region_label', columns='make', values='total_sales').fillna(0))
-
-except FileNotFoundError as e:
-    st.error(f"Dataset file not found: {e.filename}")
+        # Streamlit bar chart for new cars
+        st.bar_chart(new_filtered_data.pivot(index='region_label', columns='make', values='total_sales').fillna(0))
+except FileNotFoundError:
+    st.error("The new cars dataset file was not found. Please check the file path.")
 except Exception as e:
-    st.error(f"An error occurred: {e}")
+    st.error(f"An error occurred while processing new cars data: {e}")
+
+# Section 3: Sales Analysis for Used Cars
+st.markdown("---")
+st.header("📊 Sales Insights: Used Cars")
+st.subheader("Top 10 Regions for Used Car Sales (Selected Makes)")
+
+# Load Used Cars Dataset
+used_cars_path = "used_cars.csv"  # Update with your actual dataset path
+used_cars_makes = ['Ford', 'Chevrolet', 'Hyundai', 'Honda', 'Toyota', 'Ram']
+
+try:
+    df_used = pd.read_csv(used_cars_path)
+
+    # Ensure required columns exist
+    required_columns_used = ['region_label', 'make', 'vin']
+    if not all(col in df_used.columns for col in required_columns_used):
+        st.error(f"The used cars dataset must include the following columns: {', '.join(required_columns_used)}")
+    else:
+        # Filter dataset by selected makes
+        df_used_filtered = df_used[df_used['make'].isin(used_cars_makes)]
+
+        # Calculate sales by region and make
+        used_region_make_sales = df_used_filtered.groupby(['region_label', 'make']).agg(
+            total_sales=('vin', 'count')
+        ).reset_index()
+
+        # Find the top 10 regions by sales
+        top_used_regions = (
+            used_region_make_sales.groupby('region_label')['total_sales']
+            .sum()
+            .nlargest(10)
+            .index.tolist()
+        )
+
+        # Filter data for the top regions
+        used_filtered_data = used_region_make_sales[used_region_make_sales['region_label'].isin(top_used_regions)]
+
+        # Streamlit bar chart for used cars
+        st.bar_chart(used_filtered_data.pivot(index='region_label', columns='make', values='total_sales').fillna(0))
+except FileNotFoundError:
+    st.error("The used cars dataset file was not found. Please check the file path.")
+except Exception as e:
+    st.error(f"An error occurred while processing used cars data: {e}")
