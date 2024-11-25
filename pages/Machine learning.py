@@ -80,7 +80,7 @@ def predict_new_car_region(price, mileage, drivetrain, make=None):
     return best_regions[['region_label', 'avg_price', 'avg_mileage', 'total_sales']]
 
 # Streamlit App
-st.title("🚗 Car Sales Region Predictor")
+st.title("🚗 Car Sales Region Classifier")
 
 # Sidebar for advanced options
 st.sidebar.title("⚙️ Advanced Options")
@@ -110,7 +110,7 @@ car_drivetrain = st.selectbox("Select Drivetrain", options=encoder.categories_[0
 car_mileage = st.slider("Car Mileage (miles)", min_value=0, max_value=200000, value=50000, step=5000)
 
 # Submit Button
-submitted = st.button("🔮 Predict Best Region")
+submitted = st.button("🔮 Classify")
 
 # Handle Predictions
 if submitted:
