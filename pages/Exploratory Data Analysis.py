@@ -43,9 +43,7 @@ sales_pivot = sales_data.pivot(index="region_label", columns="car_type", values=
 st.subheader("🚗 Used vs New Cars Sold in Edmonton Regions")
 st.bar_chart(sales_pivot)
 
-# Display raw data for reference
-st.write("### Combined Sales Data by Region and Car Type")
-st.write(sales_data)
+
 
 #Section 3
 
@@ -56,7 +54,3 @@ price_by_year = price_by_year.sort_values(by="model_year")  # Ensure proper orde
 # Plotting the line graph using Streamlit
 st.subheader("📈 Average Price vs Model Year")
 st.line_chart(data=price_by_year, x="model_year", y="price")
-
-# Display raw data for reference
-st.write("### Average Price by Model Year")
-st.write(price_by_year)
