@@ -54,3 +54,20 @@ price_by_year = price_by_year.sort_values(by="model_year")  # Ensure proper orde
 # Plotting the line graph using Streamlit
 st.subheader("📈 Average Price vs Model Year")
 st.line_chart(data=price_by_year, x="model_year", y="price")
+
+# Section 4
+
+# Group by make and stock type to calculate the number of cars sold
+top_sold_cars = (
+    df_combined.groupby(["make", "stock_type"])["vin"]
+    .count()
+    .reset_index(name="cars_sold")
+    .sort_values(by="cars_sold", ascending=False)
+)
+
+# Get the top 10 most sold cars
+top_10_sold_cars = top_sold_cars.head(10)
+
+# Plotting the bar chart using Streamlit
+st.subheader("📊 Top 10 Sold Cars by Popular Makes and Stock Type")
+st.bar_chart(data=top_10_sold_cars, x="make", y="cars_sold")
