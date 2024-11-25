@@ -1,7 +1,12 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
+try:
+    import sklearn
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "seaborn"])
+
+import seaborn as sns
 
 # File paths
 html_file_path = "Dealership-map.html"
