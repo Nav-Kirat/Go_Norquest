@@ -1,18 +1,23 @@
 import streamlit as st
 import pandas as pd
+import subprocess
+import sys
 
-try:
-    import sklearn
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "seaborn"])
+# Function to dynamically install a library
+def install_library(library_name):
+    try:
+        __import__(library_name)
+    except ImportError:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", library_name])
 
-try:
-    import sklearn
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "matplotlib"])
+# Install required libraries dynamically
+install_library("seaborn")
+install_library("matplotlib")
 
+# Import libraries after ensuring they are installed
 import seaborn as sns
 import matplotlib.pyplot as plt
+
 # File paths
 html_file_path = "Dealership-map.html"
 used_cars_path = "used_cars.csv"
