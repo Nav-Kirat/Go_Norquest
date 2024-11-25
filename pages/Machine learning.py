@@ -97,7 +97,7 @@ car_makes = sorted([
 
 # Create Form
 st.write("### Enter Car Details")
-car_type = st.radio("What type of car are you selling?", options=["Used", "New"], index=0)
+car_type = st.radio("What type of car are you considering?", options=["Used", "New"], index=0)
 car_price = st.slider("Car Price ($)", min_value=5000, max_value=100000, value=30000, step=500)
 
 # Optional dropdown for car make
