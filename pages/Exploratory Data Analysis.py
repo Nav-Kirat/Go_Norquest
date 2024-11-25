@@ -20,8 +20,7 @@ try:
 except FileNotFoundError:
     st.error("The HTML file containing the map was not found. Please check the file path.")
 
-import pandas as pd
-import streamlit as st
+#Section 2
 
 # Load datasets
 df_used = pd.read_csv("used_cars.csv")
@@ -41,9 +40,23 @@ sales_data = df_combined.groupby(["region_label", "car_type"]).size().reset_inde
 sales_pivot = sales_data.pivot(index="region_label", columns="car_type", values="cars_sold").fillna(0)
 
 # Plotting the bar graph using Streamlit
-st.title("🚗 Used vs New Cars Sold in Edmonton Regions")
+st.subheader("🚗 Used vs New Cars Sold in Edmonton Regions")
 st.bar_chart(sales_pivot)
 
 # Display raw data for reference
 st.write("### Combined Sales Data by Region and Car Type")
 st.write(sales_data)
+
+#Section 3
+
+# Group by model year and calculate average price
+price_by_year = df_combined.groupby("model_year")["price"].mean().reset_index()
+price_by_year = price_by_year.sort_values(by="model_year")  # Ensure proper order
+
+# Plotting the line graph using Streamlit
+st.subheader("📈 Average Price vs Model Year")
+st.line_chart(data=price_by_year, x="model_year", y="price")
+
+# Display raw data for reference
+st.write("### Average Price by Model Year")
+st.write(price_by_year)
