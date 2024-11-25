@@ -1,27 +1,20 @@
 import streamlit as st
-import pandas as pd
-import subprocess
-import sys
 
-# Function to install a library dynamically
-def install_library(library_name):
-    try:
-        __import__(library_name)
-    except ImportError:
-        try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", library_name])
-        except subprocess.CalledProcessError as e:
-            st.error(f"Failed to install {library_name}. Please install it manually.")
-            raise e
+# Path to the HTML file containing the map
+html_file_path = "Dealership-map.html"
 
-# Install required libraries dynamically
+# Configure the Streamlit page
+st.set_page_config(page_title="Dealership-map", layout="wide")
+
+# Title for the page
+st.title("🗺️ Dealerships in Edmonton")
+
+# Read and embed the HTML file
 try:
-    install_library("seaborn")
-    install_library("matplotlib")
-except Exception as e:
-    st.error("An error occurred during library installation.")
-    st.error(str(e))
-
-# Import libraries after ensuring they are installed
-import seaborn as sns
-import matplotlib.pyplot as plt
+    with open(html_file_path, "r", encoding="utf-8") as f:
+        map_html = f.read()
+    
+    # Embed the HTML map in Streamlit
+    st.components.v1.html(map_html, height=600, scrolling=True)
+except FileNotFoundError:
+    st.error("The HTML file containing the map was not found. Please check the file path.")
