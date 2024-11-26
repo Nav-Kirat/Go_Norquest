@@ -9,8 +9,6 @@ st.title("🤝 About Us")
 # Group Photo Section
 st.image("app_files/group_photo.jpeg", caption="Our Amazing Go-Auto Team", use_column_width=True)
 
-# Team Details
-st.header("Meet the Team")
 
 # Team Member Details
 team_members = [{
