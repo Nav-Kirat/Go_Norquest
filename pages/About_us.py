@@ -36,13 +36,19 @@ team_members = [
     },
 ]
 
-# Display LinkedIn Profiles and Roles
-for member in team_members:
-    # LinkedIn Profile
-    st.markdown(
-        f"### [{member['name']}]({member['linkedin']})",
-        unsafe_allow_html=True,
-    )
-    # Team Role
-    st.markdown(f"**Role**: {member['role']}")
-    st.write("---")
+# Create columns for the team members
+cols = st.columns(len(team_members))
+
+# Populate each column with member details
+for col, member in zip(cols, team_members):
+    with col:
+        # Embed LinkedIn profile using an iframe
+        st.markdown(
+            f"""
+            <iframe src="{member['linkedin']}" width="300" height="400" frameborder="0"></iframe>
+            """,
+            unsafe_allow_html=True,
+        )
+        # Display member name and role
+        st.markdown(f"### {member['name']}")
+        st.markdown(f"**Role**: {member['role']}")
