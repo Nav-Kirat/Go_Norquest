@@ -101,10 +101,6 @@ def assign_colors(dealerships):
 # Streamlit App
 st.title("🚗 Car Sales Region Classifier and Dealership Locator")
 
-# Sidebar for advanced options
-st.sidebar.title("⚙️ Advanced Options")
-enable_summary = st.sidebar.checkbox("Show Prediction Summary", value=True)
-
 # Dropdown for Car Makes
 car_makes = sorted([
     "Acura", "Honda", "Chrysler", "Dodge", "Jeep", "Ram", "Ford", "Chevrolet", "Pontiac", "Buick",
@@ -176,7 +172,4 @@ if submitted:
                 r = pdk.Deck(layers=[layer], initial_view_state=view_state,map_style="mapbox://styles/mapbox/light-v10", tooltip={"text": "{dealer_name}"})
                 st.pydeck_chart(r)
 
-                # Display color-coded table
-                st.write("### Dealership Details (Color-Coded)")
-                dealership_table = dealerships[["dealer_name", "Latitude", "Longitude"]]
-                dealership
+
