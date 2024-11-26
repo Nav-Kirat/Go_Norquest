@@ -87,7 +87,7 @@ def get_dealerships_with_car(region_label, df, make, price, mileage):
         (region_dealerships["mileage"] >= mileage - 10000)
     ]
     # Return only the necessary columns for mapping
-    return filtered_dealerships[["Latitude", "Longitude"]]
+    return filtered_dealerships[["Latitude", "Longitude", "dealer_name"]]
 
 # Streamlit App
 st.title("🚗 Car Sales Region Classifier and Dealership Locator")
@@ -143,14 +143,18 @@ if submitted:
         st.write(f"### Dealerships in {selected_region} with the Selected Car")
 
         # Filter dealerships in the selected region with the selected car
-        if car_type == "Used":
-            dealerships = get_dealerships_with_car(selected_region, df_used, car_make, car_price, car_mileage)
+        if car_make == "None":
+            st.write("No car selected.")
         else:
-            dealerships = get_dealerships_with_car(selected_region, df_new, car_make, car_price, car_mileage)
+            if car_type == "Used":
+                dealerships = get_dealerships_with_car(selected_region, df_used, car_make, car_price, car_mileage)
+            else:
+                dealerships = get_dealerships_with_car(selected_region, df_new, car_make, car_price, car_mileage)
 
-        # Plot dealerships on the map
-        if not dealerships.empty:
-            dealerships = dealerships.rename(columns={"Latitude": "latitude", "Longitude": "longitude"})
-            st.map(dealerships)
-        else:
-            st.write("No dealerships found in the selected region with the specified car.")
+            # Plot dealerships on the map
+            if not dealerships.empty:
+                st.map(dealerships.rename(columns={"Latitude": "latitude", "Longitude": "longitude"}))
+                st.write("### Dealership Details:")
+                st.write(dealerships)
+            else:
+                st.write("No dealerships found in the selected region with the specified car.")
