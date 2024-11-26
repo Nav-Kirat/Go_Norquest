@@ -139,6 +139,14 @@ if submitted:
 
         # Plot dealerships on the map
         if not dealerships.empty:
+            # Rename columns to match Streamlit's expected column names
+            dealerships = dealerships.rename(columns={"Latitude": "latitude", "Longitude": "longitude"})
+            st.map(dealerships)
+        else:
+            st.write("No dealerships found in the selected region.")
+
+        # Plot dealerships on the map
+        if not dealerships.empty:
             st.map(dealerships)
         else:
             st.write("No dealerships found in the selected region.")
