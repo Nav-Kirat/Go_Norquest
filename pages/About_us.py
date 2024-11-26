@@ -15,7 +15,7 @@ st.header("Meet the Team")
 # Team Member Details
 team_members = [
     {
-        "name": "Nav",
+        "name": "Navkirat singh",
         "linkedin": "https://linkedin.com/in/navkirat",
         "role": "Team Lead",
     },
