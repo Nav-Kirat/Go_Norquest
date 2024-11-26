@@ -13,27 +13,27 @@ st.image("app_files/group_photo.jpeg", caption="Our Amazing Go-Auto Team", use_c
 st.header("Meet the Team")
 
 # Team Member Details
-team_members = [
+team_members = [{
+        "name": "Dionathan Dos Santos",
+        "linkedin": "https://www.linkedin.com/in/dionathanadiel",
+        "role": "Model Developer",
+    },
     {
         "name": "Navkirat singh",
         "linkedin": "https://linkedin.com/in/navkirat",
         "role": "Team Lead",
     },
     {
-        "name": "Dionathan Dos Santos",
-        "linkedin": "https://www.linkedin.com/in/dionathanadiel",
-        "role": "Model Developer",
+        "name": "Mayank khera",
+        "linkedin": "https://www.linkedin.com/in/mayank-khera-915b12252/",
+        "role": "Data gathering and preparation (Scrum Master)",
     },
     {
         "name": "Vinit Kataria",
         "linkedin": "https://www.linkedin.com/in/vinit-kataria-46b13b222/",
         "role": "Result Interpreter and presenter",
     },
-    {
-        "name": "Mayank khera",
-        "linkedin": "https://www.linkedin.com/in/mayank-khera-915b12252/",
-        "role": "Data gathering and preparation (Scrum Master)",
-    },
+    
 ]
 
 # Create Columns for Team Members
