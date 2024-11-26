@@ -77,6 +77,7 @@ def predict_new_car_region(price, mileage, drivetrain, make=None):
     return best_regions[["region_label", "total_sales"]]
 
 # Function to get dealerships for a region with the selected car
+# Function to get dealerships for a region with the selected car
 def get_dealerships_with_car(region_label, df, make, price, mileage):
     # Filter dealerships in the given region
     region_dealerships = df[df["region_label"] == region_label]
@@ -88,7 +89,10 @@ def get_dealerships_with_car(region_label, df, make, price, mileage):
         (region_dealerships["mileage"] <= mileage + 10000) &  # Add a mileage range tolerance
         (region_dealerships["mileage"] >= mileage - 10000)
     ]
-    return filtered_dealerships[["Latitude", "Longitude", "dealer_name"]]
+    # Add a count column for the number of cars at each dealership
+    dealership_counts = filtered_dealerships.groupby("dealer_name").size().reset_index(name="car_count")
+    filtered_dealerships = pd.merge(filtered_dealerships, dealership_counts, on="dealer_name")
+    return filtered_dealerships[["Latitude", "Longitude", "dealer_name", "car_count"]]
 
 # Generate unique colors for each dealership
 def assign_colors(dealerships):
@@ -128,19 +132,14 @@ car_mileage = st.slider("Car Mileage (miles)", min_value=0, max_value=200000, va
 submitted = st.button("🔮 Classify and Locate Dealerships")
 
 # Handle Predictions
+# Pydeck map with car count in tooltips
 if submitted:
-    if car_drivetrain == "None":
-        car_drivetrain = None
-
     if car_type == "Used":
         best_regions = predict_used_car_region(car_price, car_mileage, car_drivetrain, make=car_make)
         st.write("### Best Regions for Used Car")
     else:
         best_regions = predict_new_car_region(car_price, car_mileage, car_drivetrain, make=car_make)
         st.write("### Best Regions for New Car")
-
-    # Display DataFrame
-    st.dataframe(best_regions)
 
     if not best_regions.empty:
         selected_region = best_regions.iloc[0]["region_label"]
@@ -158,31 +157,35 @@ if submitted:
                 # Assign colors to dealerships
                 dealerships, color_map = assign_colors(dealerships)
 
-                # Pydeck map with dynamically adjustable marker sizes
+                # Pydeck map with colored markers and car count in tooltips
                 layer = pdk.Layer(
                     "ScatterplotLayer",
                     data=dealerships,
                     get_position="[Longitude, Latitude]",
                     get_fill_color="[color[0], color[1], color[2], 160]",
-                    get_radius=300,  # Smaller default radius
-                    radius_scale=2,  # Adjust the scale for zoom responsiveness
+                    get_radius=300,  # Adjust radius
                     pickable=True,
                 )
-                
+
                 view_state = pdk.ViewState(
                     latitude=dealerships["Latitude"].mean(),
                     longitude=dealerships["Longitude"].mean(),
                     zoom=10,
                 )
-                
-                # Set map style to light
+
+                # Include car count in tooltips
                 r = pdk.Deck(
                     layers=[layer],
                     initial_view_state=view_state,
-                    map_style="mapbox://styles/mapbox/light-v10",  # Light theme
-                    tooltip={"text": "{dealer_name}"},
+                    map_style="mapbox://styles/mapbox/light-v10",
+                    tooltip={"html": "<b>{dealer_name}</b><br>Cars available: {car_count}", "style": {"color": "white"}},
                 )
-                
+
                 st.pydeck_chart(r)
 
-
+                # Display dealership details in a table
+                st.write("### Dealership Details (Color-Coded)")
+                dealership_table = dealerships[["dealer_name", "car_count", "Latitude", "Longitude"]]
+                st.write(dealership_table)
+            else:
+                st.write("No dealerships found in the selected region with the specified car.")
