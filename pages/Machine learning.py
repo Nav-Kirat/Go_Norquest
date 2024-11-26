@@ -15,8 +15,8 @@ from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 import random
 
 # Load datasets
-df_used = pd.read_csv("used_cars.csv")
-df_new = pd.read_csv("new_cars.csv")
+df_used = pd.read_csv("app_files/used_cars.csv")
+df_new = pd.read_csv("app_files/new_cars.csv")
 
 # Preprocess Used Cars Data
 used_cars = df_used
