@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import altair as alt
 
 # Path to the HTML file containing the map
 html_file_path = "Dealership-map.html"
@@ -20,8 +21,7 @@ try:
 except FileNotFoundError:
     st.error("The HTML file containing the map was not found. Please check the file path.")
 
-#Section 2
-
+# Section 2: Used vs New Cars Sold in Edmonton Regions
 # Load datasets
 df_used = pd.read_csv("used_cars.csv")
 df_new = pd.read_csv("new_cars.csv")
@@ -39,49 +39,54 @@ sales_data = df_combined.groupby(["region_label", "car_type"]).size().reset_inde
 # Pivot the data for easier plotting
 sales_pivot = sales_data.pivot(index="region_label", columns="car_type", values="cars_sold").fillna(0)
 
-# Plotting the bar graph using Streamlit
+# Plotting the bar graph using Altair
 st.subheader("🚗 Used vs New Cars Sold in Edmonton Regions")
-st.bar_chart(sales_pivot)
 
+sales_data_chart = sales_data.copy()
+sales_data_chart['region_label'] = sales_data_chart['region_label'].astype(str)  # Ensure string for Altair
 
+chart = alt.Chart(sales_data_chart).mark_bar().encode(
+    x=alt.X('region_label:N', title='Region'),
+    y=alt.Y('cars_sold:Q', title='Number of Cars Sold'),
+    color=alt.Color('car_type:N', title='Car Type', scale=alt.Scale(domain=["Used", "New"], range=["#FF6F61", "#C0392B"])),
+    tooltip=['region_label', 'car_type', 'cars_sold']
+).properties(
+    width=800,
+    height=500
+)
 
-#Section 3
+st.altair_chart(chart, use_container_width=True)
 
+# Section 3: Average Price vs Model Year
 # Group by model year and calculate average price
 price_by_year = df_combined.groupby("model_year")["price"].mean().reset_index()
 price_by_year = price_by_year.sort_values(by="model_year")  # Ensure proper order
 
-# Plotting the line graph using Streamlit
+# Plotting the line graph using Altair
 st.subheader("📈 Average Price vs Model Year")
-st.line_chart(data=price_by_year, x="model_year", y="price")
 
-# Section 4
+line_chart = alt.Chart(price_by_year).mark_line(color="#C0392B").encode(
+    x=alt.X('model_year:Q', title='Model Year'),
+    y=alt.Y('price:Q', title='Average Price'),
+    tooltip=['model_year', 'price']
+).properties(
+    width=800,
+    height=500
+)
 
-import pandas as pd
-import streamlit as st
-import altair as alt
+st.altair_chart(line_chart, use_container_width=True)
 
-# Load datasets
-df_used = pd.read_csv("used_cars.csv")
-df_new = pd.read_csv("new_cars.csv")
-
-# Add a 'stock_type' column to distinguish between used and new cars
-df_used["stock_type"] = "Used"
-df_new["stock_type"] = "New"
-
-# Combine the datasets
-df_combined = pd.concat([df_used, df_new], ignore_index=True)
-
+# Section 4: Top 10 Car Makes
 # Group by make and stock_type to calculate the number of cars sold
-sales_data = (
-    df_combined.groupby(["make", "stock_type"])["vin"]
+sales_data_makes = (
+    df_combined.groupby(["make", "car_type"])["vin"]
     .count()
     .reset_index(name="cars_sold")
 )
 
 # Calculate total cars sold per make
 total_sales_per_make = (
-    sales_data.groupby("make")["cars_sold"]
+    sales_data_makes.groupby("make")["cars_sold"]
     .sum()
     .reset_index(name="total_cars_sold")
 )
@@ -90,7 +95,7 @@ total_sales_per_make = (
 top_10_makes = total_sales_per_make.sort_values(by="total_cars_sold", ascending=False).head(10)["make"]
 
 # Filter the sales data to include only the top 10 makes
-top_sales_data = sales_data[sales_data["make"].isin(top_10_makes)]
+top_sales_data = sales_data_makes[sales_data_makes["make"].isin(top_10_makes)]
 
 # Sort the makes by total sales for consistent plotting
 top_sales_data["make"] = pd.Categorical(
@@ -100,13 +105,15 @@ top_sales_data["make"] = pd.Categorical(
 )
 
 # Plotting the stacked bar chart using Altair
-st.subheader("📊 Top 10 Car makes")
+st.subheader("📊 Top 10 Car Makes (Used vs New)")
+
+red_color_scale = alt.Scale(domain=["Used", "New"], range=["#FF6F61", "#C0392B"])
 
 chart = alt.Chart(top_sales_data).mark_bar().encode(
     x=alt.X('make:N', sort=top_10_makes, title='Make'),
     y=alt.Y('cars_sold:Q', title='Number of Cars Sold'),
-    color=alt.Color('stock_type:N', title='Stock Type'),
-    tooltip=['make', 'stock_type', 'cars_sold']
+    color=alt.Color('car_type:N', title='Stock Type', scale=red_color_scale),
+    tooltip=['make', 'car_type', 'cars_sold']
 ).properties(
     width=800,
     height=500
@@ -117,4 +124,3 @@ st.altair_chart(chart, use_container_width=True)
 # Display raw data for reference
 st.write("### Top 10 Sold Cars Data")
 st.write(top_sales_data)
-
