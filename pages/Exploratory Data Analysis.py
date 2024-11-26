@@ -121,6 +121,4 @@ chart = alt.Chart(top_sales_data).mark_bar().encode(
 
 st.altair_chart(chart, use_container_width=True)
 
-# Display raw data for reference
-st.write("### Top 10 Sold Cars Data")
-st.write(top_sales_data)
+
