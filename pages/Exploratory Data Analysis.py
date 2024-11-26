@@ -3,7 +3,7 @@ import pandas as pd
 import altair as alt
 
 # Path to the HTML file containing the map
-html_file_path = "Dealership-map.html"
+html_file_path = "app_files/Dealership-map.html"
 
 # Configure the Streamlit page
 st.set_page_config(page_title="Dealership and Sales Insights", layout="wide")
