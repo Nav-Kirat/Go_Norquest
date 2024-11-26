@@ -57,17 +57,44 @@ st.line_chart(data=price_by_year, x="model_year", y="price")
 
 # Section 4
 
-# Group by make and stock type to calculate the number of cars sold
 top_sold_cars = (
-    df_combined.groupby(["make", "stock_type"])["vin"]
+    df_combined.groupby(["make", "car_type"])["vin"]
     .count()
     .reset_index(name="cars_sold")
     .sort_values(by="cars_sold", ascending=False)
 )
 
-# Get the top 10 most sold cars
-top_10_sold_cars = top_sold_cars.head(10)
+# Get the top 10 makes with the highest total sales
+top_10_makes = (
+    top_sold_cars.groupby("make")["cars_sold"]
+    .sum()
+    .reset_index()
+    .sort_values(by="cars_sold", ascending=False)
+    .head(10)
+)
 
-# Plotting the bar chart using Streamlit
+# Filter the dataset to include only the top 10 makes
+top_10_sold_cars = top_sold_cars[top_sold_cars["make"].isin(top_10_makes["make"])]
+
+# Create a stacked bar chart using Altair
+st.title("📊 Top 10 Sold Cars by Popular Makes (Used vs New)")
+
+chart = (
+    alt.Chart(top_10_sold_cars)
+    .mark_bar()
+    .encode(
+        x=alt.X("make:N", title="Car Make", sort="-y"),
+        y=alt.Y("cars_sold:Q", title="Number of Cars Sold"),
+        color=alt.Color("car_type:N", title="Car Type"),
+        tooltip=["make", "car_type", "cars_sold"],
+    )
+    .properties(width=800, height=400, title="Top 10 Sold Cars by Make and Type")
+)
+
+st.altair_chart(chart)
+
+# Display raw data for reference
+st.write("### Top 10 Sold Cars Data")
+st.write(top_10_sold_cars)
 st.subheader("📊 Top 10 Sold Cars by Popular Makes and Stock Type")
 st.bar_chart(data=top_10_sold_cars, x="make", y="cars_sold")
