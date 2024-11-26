@@ -145,8 +145,3 @@ if submitted:
         else:
             st.write("No dealerships found in the selected region.")
 
-        # Plot dealerships on the map
-        if not dealerships.empty:
-            st.map(dealerships)
-        else:
-            st.write("No dealerships found in the selected region.")
