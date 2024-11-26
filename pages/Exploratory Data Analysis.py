@@ -100,7 +100,7 @@ top_sales_data["make"] = pd.Categorical(
 )
 
 # Plotting the stacked bar chart using Altair
-st.title("📊 Top 10 Sold Cars by Popular Makes and Stock Type (Used vs New)")
+st.subheader("📊 Top 10 Car makes")
 
 chart = alt.Chart(top_sales_data).mark_bar().encode(
     x=alt.X('make:N', sort=top_10_makes, title='Make'),
