@@ -59,7 +59,7 @@ def predict_used_car_region(price, mileage, drivetrain, make=None):
     car_features_scaled[:, 1] *= 1.5
     predicted_cluster = kmeans_used_cars.predict(car_features_scaled)[0]
     best_regions = agg_data_used[agg_data_used['cluster'] == predicted_cluster]
-    return best_regions[['region_label', 'avg_price', 'avg_mileage', 'total_sales']]
+    return best_regions[['region_label', 'total_sales']]
 
 def predict_new_car_region(price, mileage, drivetrain, make=None):
     # Prepare the input features for new cars
@@ -77,7 +77,7 @@ def predict_new_car_region(price, mileage, drivetrain, make=None):
     if make and "make" in agg_data_used.columns:
         best_regions = best_regions[best_regions['make'] == make]
 
-    return best_regions[['region_label', 'avg_price', 'avg_mileage', 'total_sales']]
+    return best_regions[['region_label',  'total_sales']]
 
 # Streamlit App
 st.title("🚗 Car Sales Region Classifier")
