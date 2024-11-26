@@ -7,7 +7,7 @@ st.set_page_config(page_title="About Us", layout="centered")
 st.title("🤝 About Us")
 
 # Group Photo Section
-st.image("group_photo.jpg", caption="Our Amazing Go-Auto Team", use_column_width=True)
+st.image("app_files/group_photo.jpeg", caption="Our Amazing Go-Auto Team", use_column_width=True)
 
 # Team Details
 st.header("Meet the Team")
@@ -15,24 +15,24 @@ st.header("Meet the Team")
 # Team Member Details
 team_members = [
     {
-        "name": "Alice Johnson",
-        "linkedin": "https://www.linkedin.com/in/alice-johnson",
-        "role": "Team Lead - Machine Learning Specialist",
+        "name": "Nav",
+        "linkedin": "https://linkedin.com/in/navkirat",
+        "role": "Team Lead",
     },
     {
-        "name": "Bob Smith",
-        "linkedin": "https://www.linkedin.com/in/bob-smith",
-        "role": "Data Analyst - Visualization Expert",
+        "name": "Dionathan Dos Santos",
+        "linkedin": "https://www.linkedin.com/in/dionathanadiel",
+        "role": "Model Developer",
     },
     {
-        "name": "Cathy Brown",
-        "linkedin": "https://www.linkedin.com/in/cathy-brown",
-        "role": "Data Engineer - Backend Developer",
+        "name": "Vinit Kataria",
+        "linkedin": "https://www.linkedin.com/in/vinit-kataria-46b13b222/",
+        "role": "Result Interpreter and presenter",
     },
     {
-        "name": "David Lee",
-        "linkedin": "https://www.linkedin.com/in/david-lee",
-        "role": "Project Manager - Communication Specialist",
+        "name": "Mayank khera",
+        "linkedin": "https://www.linkedin.com/in/mayank-khera-915b12252/",
+        "role": "Data gathering and preparation (Scrum Master)",
     },
 ]
 
