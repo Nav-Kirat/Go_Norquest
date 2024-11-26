@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.logo('image.png')
+st.logo('app_files/image.png')
 # Set page configuration
 st.set_page_config(page_title="Go Norquest")
 
