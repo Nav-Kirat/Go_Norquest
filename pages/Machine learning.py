@@ -151,7 +151,8 @@ if submitted:
     else:
         best_regions = predict_new_car_region(car_price, car_mileage, car_drivetrain, make=car_make)
         st.write("### Best Regions for New Car")
-
+    # Display DataFrame
+    st.dataframe(best_regions)
     if not best_regions.empty:
         selected_region = best_regions.iloc[0]["region_label"]
         st.write(f"### Dealerships in {selected_region} with the Selected Car")
