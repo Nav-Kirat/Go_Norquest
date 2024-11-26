@@ -183,9 +183,6 @@ if submitted:
 
                 st.pydeck_chart(r)
 
-                # Display dealership details in a table
-                st.write("### Dealership Details (Color-Coded)")
-                dealership_table = dealerships[["dealer_name", "car_count", "Latitude", "Longitude"]]
-                st.write(dealership_table)
+        
             else:
                 st.write("No dealerships found in the selected region with the specified car.")
