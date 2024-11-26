@@ -128,3 +128,73 @@ if submitted:
     if enable_summary:
         total_sales = best_regions['total_sales'].sum()
         st.write(f"📊 Total Sales in Recommended Regions: **{total_sales}**")
+
+
+# Function to get dealerships for a region
+def get_dealerships_in_region(region_label, df):
+    # Filter dealerships in the given region
+    region_dealerships = df[df['region_label'] == region_label]
+    # Return only the necessary columns for mapping
+    return region_dealerships[['Latitude', 'Longitude']]
+
+# Streamlit App
+st.title("🚗 Car Sales Region Classifier and Dealership Locator")
+
+# Sidebar for advanced options
+st.sidebar.title("⚙️ Advanced Options")
+enable_summary = st.sidebar.checkbox("Show Prediction Summary", value=True)
+
+# Dropdown for Car Makes
+car_makes = sorted([
+    'Acura', 'Honda', 'Chrysler', 'Dodge', 'Jeep', 'Ram', 'Ford', 'Chevrolet', 'Pontiac', 'Buick',
+    'Cadillac', 'Saturn', 'GMC', 'Lincoln', 'Mercury', 'Nissan', 'Volkswagen', 'Mazda', 'Suzuki',
+    'Toyota', 'Lexus', 'Fiat', 'Kia', 'Hyundai', 'BMW', 'Infiniti', 'Mitsubishi', 'Mercedes-Benz',
+    'Subaru', 'Hummer', 'Tesla', 'Rivian', 'Volvo', 'Scion', 'Genesis', 'Polestar', 'Jaguar',
+    'Land Rover', 'Audi', 'Fisker', 'Smart', 'Mini', 'Porsche', 'Maserati', 'Alfa Romeo'
+])
+
+# Create Form
+st.write("### Enter Car Details")
+car_type = st.radio("What type of car are you considering?", options=["Used", "New"], index=0)
+car_price = st.slider("Car Price ($)", min_value=5000, max_value=100000, value=30000, step=500)
+
+# Optional dropdown for car make
+car_make = st.selectbox("Car Make (Optional)", options=["None"] + car_makes)
+
+# Drivetrain input
+car_drivetrain = st.selectbox("Select Drivetrain", options=encoder.categories_[0])
+
+# Mileage input
+car_mileage = st.slider("Car Mileage (miles)", min_value=0, max_value=200000, value=50000, step=5000)
+
+# Submit Button
+submitted = st.button("🔮 Classify and Locate Dealerships")
+
+# Handle Predictions
+if submitted:
+    if car_type == "Used":
+        best_regions = predict_used_car_region(car_price, car_mileage, car_drivetrain, make=car_make)
+        st.write("### Best Regions for Used Car")
+    else:
+        best_regions = predict_new_car_region(car_price, car_mileage, car_drivetrain, make=car_make)
+        st.write("### Best Regions for New Car")
+
+    # Display DataFrame
+    st.dataframe(best_regions)
+
+    # Get the first region (assuming there's at least one result)
+    if not best_regions.empty:
+        selected_region = best_regions.iloc[0]['region_label']
+        st.write(f"### Dealerships in {selected_region}")
+
+        # Filter dealerships in the selected region
+        if car_type == "Used":
+            dealerships = get_dealerships_in_region(selected_region, df_used)
+        else:
+            dealerships = get_dealerships_in_region(selected_region, df_new)
+
+        # Plot dealerships on the map
+        if not dealerships.empty:
+            st.map(dealerships)
+        else:
+            st.write("No dealerships found in the selected region.")
