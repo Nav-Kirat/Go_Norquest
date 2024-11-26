@@ -158,18 +158,31 @@ if submitted:
                 # Assign colors to dealerships
                 dealerships, color_map = assign_colors(dealerships)
 
-                # Pydeck map with colored markers
+                # Pydeck map with dynamically adjustable marker sizes
                 layer = pdk.Layer(
                     "ScatterplotLayer",
                     data=dealerships,
                     get_position="[Longitude, Latitude]",
                     get_fill_color="[color[0], color[1], color[2], 160]",
-                    get_radius=500,
+                    get_radius=300,  # Smaller default radius
+                    radius_scale=2,  # Adjust the scale for zoom responsiveness
                     pickable=True,
                 )
-
-                view_state = pdk.ViewState(latitude=dealerships["Latitude"].mean(), longitude=dealerships["Longitude"].mean(), zoom=10)
-                r = pdk.Deck(layers=[layer], initial_view_state=view_state,map_style="mapbox://styles/mapbox/light-v10",get_radius=300, radius_scale=2, tooltip={"text": "{dealer_name}"})
+                
+                view_state = pdk.ViewState(
+                    latitude=dealerships["Latitude"].mean(),
+                    longitude=dealerships["Longitude"].mean(),
+                    zoom=10,
+                )
+                
+                # Set map style to light
+                r = pdk.Deck(
+                    layers=[layer],
+                    initial_view_state=view_state,
+                    map_style="mapbox://styles/mapbox/light-v10",  # Light theme
+                    tooltip={"text": "{dealer_name}"},
+                )
+                
                 st.pydeck_chart(r)
 
 
