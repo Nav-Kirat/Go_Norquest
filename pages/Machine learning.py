@@ -105,8 +105,8 @@ car_price = st.slider("Car Price ($)", min_value=5000, max_value=100000, value=3
 # Optional dropdown for car make
 car_make = st.selectbox("Car Make (Optional)", options=["None"] + car_makes)
 
-# Drivetrain input
-car_drivetrain = st.selectbox("Select Drivetrain", options=encoder.categories_[0])
+# Optional Drivetrain input
+car_drivetrain = st.selectbox("Select Drivetrain (Optional)", options=["None"] + list(encoder.categories_[0]))
 
 # Mileage input
 car_mileage = st.slider("Car Mileage (miles)", min_value=0, max_value=200000, value=50000, step=5000)
@@ -116,6 +116,10 @@ submitted = st.button("🔮 Classify and Locate Dealerships")
 
 # Handle Predictions
 if submitted:
+    if car_drivetrain == "None":
+        # Set drivetrain to a default value if not specified
+        car_drivetrain = None
+
     if car_type == "Used":
         best_regions = predict_used_car_region(car_price, car_mileage, car_drivetrain, make=car_make)
         st.write("### Best Regions for Used Car")
@@ -139,9 +143,7 @@ if submitted:
 
         # Plot dealerships on the map
         if not dealerships.empty:
-            # Rename columns to match Streamlit's expected column names
             dealerships = dealerships.rename(columns={"Latitude": "latitude", "Longitude": "longitude"})
             st.map(dealerships)
         else:
             st.write("No dealerships found in the selected region.")
-
