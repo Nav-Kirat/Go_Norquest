@@ -74,12 +74,20 @@ def predict_new_car_region(price, mileage, drivetrain, make=None):
 
     return best_regions[["region_label", "total_sales"]]
 
-# Function to get dealerships for a region
-def get_dealerships_in_region(region_label, df):
+# Function to get dealerships for a region with the selected car
+def get_dealerships_with_car(region_label, df, make, price, mileage):
     # Filter dealerships in the given region
     region_dealerships = df[df["region_label"] == region_label]
+    # Further filter dealerships based on the car's details
+    filtered_dealerships = region_dealerships[
+        (region_dealerships["make"] == make) &
+        (region_dealerships["price"] <= price + 5000) &  # Add a price range tolerance
+        (region_dealerships["price"] >= price - 5000) &
+        (region_dealerships["mileage"] <= mileage + 10000) &  # Add a mileage range tolerance
+        (region_dealerships["mileage"] >= mileage - 10000)
+    ]
     # Return only the necessary columns for mapping
-    return region_dealerships[["Latitude", "Longitude"]]
+    return filtered_dealerships[["Latitude", "Longitude"]]
 
 # Streamlit App
 st.title("🚗 Car Sales Region Classifier and Dealership Locator")
@@ -117,7 +125,6 @@ submitted = st.button("🔮 Classify and Locate Dealerships")
 # Handle Predictions
 if submitted:
     if car_drivetrain == "None":
-        # Set drivetrain to a default value if not specified
         car_drivetrain = None
 
     if car_type == "Used":
@@ -133,17 +140,17 @@ if submitted:
     # Get the first region (assuming there's at least one result)
     if not best_regions.empty:
         selected_region = best_regions.iloc[0]["region_label"]
-        st.write(f"### Dealerships in {selected_region}")
+        st.write(f"### Dealerships in {selected_region} with the Selected Car")
 
-        # Filter dealerships in the selected region
+        # Filter dealerships in the selected region with the selected car
         if car_type == "Used":
-            dealerships = get_dealerships_in_region(selected_region, df_used)
+            dealerships = get_dealerships_with_car(selected_region, df_used, car_make, car_price, car_mileage)
         else:
-            dealerships = get_dealerships_in_region(selected_region, df_new)
+            dealerships = get_dealerships_with_car(selected_region, df_new, car_make, car_price, car_mileage)
 
         # Plot dealerships on the map
         if not dealerships.empty:
             dealerships = dealerships.rename(columns={"Latitude": "latitude", "Longitude": "longitude"})
             st.map(dealerships)
         else:
-            st.write("No dealerships found in the selected region.")
+            st.write("No dealerships found in the selected region with the specified car.")
