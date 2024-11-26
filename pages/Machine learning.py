@@ -9,8 +9,10 @@ except ImportError:
 import streamlit as st
 import pandas as pd
 import numpy as np
+import pydeck as pdk
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+import random
 
 # Load datasets
 df_used = pd.read_csv("used_cars.csv")
@@ -86,8 +88,15 @@ def get_dealerships_with_car(region_label, df, make, price, mileage):
         (region_dealerships["mileage"] <= mileage + 10000) &  # Add a mileage range tolerance
         (region_dealerships["mileage"] >= mileage - 10000)
     ]
-    # Return only the necessary columns for mapping
     return filtered_dealerships[["Latitude", "Longitude", "dealer_name"]]
+
+# Generate unique colors for each dealership
+def assign_colors(dealerships):
+    colors = {}
+    for dealer in dealerships["dealer_name"].unique():
+        colors[dealer] = [random.randint(0, 255) for _ in range(3)]  # Random RGB color
+    dealerships["color"] = dealerships["dealer_name"].map(colors)
+    return dealerships, colors
 
 # Streamlit App
 st.title("🚗 Car Sales Region Classifier and Dealership Locator")
@@ -137,12 +146,10 @@ if submitted:
     # Display DataFrame
     st.dataframe(best_regions)
 
-    # Get the first region (assuming there's at least one result)
     if not best_regions.empty:
         selected_region = best_regions.iloc[0]["region_label"]
         st.write(f"### Dealerships in {selected_region} with the Selected Car")
 
-        # Filter dealerships in the selected region with the selected car
         if car_make == "None":
             st.write("No car selected.")
         else:
@@ -151,10 +158,25 @@ if submitted:
             else:
                 dealerships = get_dealerships_with_car(selected_region, df_new, car_make, car_price, car_mileage)
 
-            # Plot dealerships on the map
             if not dealerships.empty:
-                st.map(dealerships.rename(columns={"Latitude": "latitude", "Longitude": "longitude"}))
-                st.write("### Dealership Details:")
-                st.write(dealerships)
-            else:
-                st.write("No dealerships found in the selected region with the specified car.")
+                # Assign colors to dealerships
+                dealerships, color_map = assign_colors(dealerships)
+
+                # Pydeck map with colored markers
+                layer = pdk.Layer(
+                    "ScatterplotLayer",
+                    data=dealerships,
+                    get_position="[Longitude, Latitude]",
+                    get_fill_color="[color[0], color[1], color[2], 160]",
+                    get_radius=500,
+                    pickable=True,
+                )
+
+                view_state = pdk.ViewState(latitude=dealerships["Latitude"].mean(), longitude=dealerships["Longitude"].mean(), zoom=10)
+                r = pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip={"text": "{dealer_name}"})
+                st.pydeck_chart(r)
+
+                # Display color-coded table
+                st.write("### Dealership Details (Color-Coded)")
+                dealership_table = dealerships[["dealer_name", "Latitude", "Longitude"]]
+                dealership
