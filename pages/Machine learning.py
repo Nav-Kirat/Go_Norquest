@@ -78,6 +78,7 @@ def predict_new_car_region(price, mileage, drivetrain, make=None):
 
 # Function to get dealerships for a region with the selected car
 # Function to get dealerships for a region with the selected car
+# Function to get dealerships for a region with the selected car
 def get_dealerships_with_car(region_label, df, make, price, mileage):
     # Filter dealerships in the given region
     region_dealerships = df[df["region_label"] == region_label]
@@ -91,8 +92,18 @@ def get_dealerships_with_car(region_label, df, make, price, mileage):
     ]
     # Add a count column for the number of cars at each dealership
     dealership_counts = filtered_dealerships.groupby("dealer_name").size().reset_index(name="car_count")
+    # Aggregate models available at each dealership
+    dealership_models = (
+        filtered_dealerships.groupby("dealer_name")["model"]
+        .apply(lambda x: ", ".join(x.unique()))  # Combine unique models as a string
+        .reset_index(name="car_models")
+    )
+    # Merge counts and models back into the filtered dealership data
     filtered_dealerships = pd.merge(filtered_dealerships, dealership_counts, on="dealer_name")
-    return filtered_dealerships[["Latitude", "Longitude", "dealer_name", "car_count"]]
+    filtered_dealerships = pd.merge(filtered_dealerships, dealership_models, on="dealer_name")
+    return filtered_dealerships[["Latitude", "Longitude", "dealer_name", "car_count", "car_models"]]
+
+
 
 # Generate unique colors for each dealership
 def assign_colors(dealerships):
@@ -140,7 +151,7 @@ if submitted:
     else:
         best_regions = predict_new_car_region(car_price, car_mileage, car_drivetrain, make=car_make)
         st.write("### Best Regions for New Car")
-    st.dataframe(best_regions)
+
     if not best_regions.empty:
         selected_region = best_regions.iloc[0]["region_label"]
         st.write(f"### Dealerships in {selected_region} with the Selected Car")
@@ -173,16 +184,22 @@ if submitted:
                     zoom=10,
                 )
 
-                # Include car count in tooltips
+                # Include car count and models in tooltips
                 r = pdk.Deck(
                     layers=[layer],
                     initial_view_state=view_state,
                     map_style="mapbox://styles/mapbox/light-v10",
-                    tooltip={"html": "<b>{dealer_name}</b><br>Cars available: {car_count}", "style": {"color": "white"}},
+                    tooltip={
+                        "html": "<b>{dealer_name}</b><br>Cars available: {car_count}<br>Models: {car_models}",
+                        "style": {"color": "white"},
+                    },
                 )
 
                 st.pydeck_chart(r)
 
-        
+                # Display dealership details in a table
+                st.write("### Dealership Details (Color-Coded)")
+                dealership_table = dealerships[["dealer_name", "car_count", "car_models", "Latitude", "Longitude"]]
+                st.write(dealership_table)
             else:
                 st.write("No dealerships found in the selected region with the specified car.")
