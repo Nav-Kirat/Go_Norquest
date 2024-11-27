@@ -23,8 +23,8 @@ except FileNotFoundError:
 
 # Section 2: Used vs New Cars Sold in Edmonton Regions
 # Load datasets
-df_used = pd.read_csv("used_cars.csv")
-df_new = pd.read_csv("new_cars.csv")
+df_used = pd.read_csv("app_files/used_cars.csv")
+df_new = pd.read_csv("app_files/new_cars.csv")
 
 # Add a 'car_type' column to distinguish between used and new cars
 df_used["car_type"] = "Used"
