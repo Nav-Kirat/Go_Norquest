@@ -66,4 +66,58 @@ This Power BI dashboard provides an interactive view of vehicle sales and dealer
 
 - **Average Car Price by Region**:
   - A bar chart summarizing the average car price in different Edmonton regions, providing insights into regional price trends. For instance, South Edmonton and Greater Edmonton suburbs have higher average prices, while Downtown Edmonton shows lower average prices.
+  - 
+
+  Here's the updated README section in GitHub-friendly Markdown with proper hyperlinked headings and formatting:
+
+---
+
+## Streamlit Application: Go Auto Dealership Analysis
+
+**[Live Link](https://go-auto.streamlit.app/)**
+
+The Streamlit app is an interactive tool that allows users to explore dealership and vehicle sales data visually. It complements the Power BI dashboard by enabling live, user-driven exploration of dealership performance, vehicle trends, and location-based insights.
+
+### 🌟 Key Features
+
+#### 1. **Interactive Dealership Map**
+- A dynamic map shows dealerships across Edmonton with:
+  - **Custom Tooltips**: Displays dealership name, number of cars available, and models of cars in stock.
+  - Zoom-in/zoom-out functionality for detailed regional exploration.
+- **Color-Coded Markers**: Dealerships are displayed with unique colors to differentiate them visually.
+
+#### 2. **Car Sales Region Classifier**
+- A machine learning-powered tool that identifies the best region to sell a car based on user-provided details:
+  - **Input Options**: Price, mileage, make, drivetrain (optional).
+  - Suggests the most suitable Edmonton region based on clustering analysis.
+- Highlights dealerships in the selected region that match the provided criteria.
+
+#### 3. **Dealership-Specific Insights**
+- For each dealership in a selected region, users can view:
+  - The **number of cars available**.
+  - The **specific car models in stock** for the selected make.
+- Provides an actionable summary of inventory for each dealership.
+
+#### 4. **Dynamic Inventory Search**
+- Allows users to refine their search based on:
+  - **Make**: Select from a dropdown of popular car makes.
+  - **Drivetrain** (Optional): Narrow down results by drivetrain type or leave blank for broader results.
+  - **Price Range**: Define a budget range for vehicles.
+  - **Mileage**: Filter vehicles by mileage range.
+
+#### 5. **Real-Time Visualizations with Pydeck**
+- Interactive map using **Pydeck** with:
+  - **Light Map Theme**: A clean and professional look.
+  - **Dynamic Bubble Sizes**: Markers adjust in size based on zoom levels for better readability.
+  - **Dealership Data Tooltips**: Displays dealership-specific details, including available inventory.
+
+#### 6. **Actionable Regional Insights**
+- Suggests optimal sales regions based on clustering analysis, helping dealerships optimize marketing and inventory distribution strategies.
+
+### 🔍 Example Use Case
+Suppose a dealership manager wants to determine the best region to sell a high-mileage, budget-friendly used car. Using the app:
+1. Input the car's details (price, mileage, and make).
+2. Identify the top-performing region for similar vehicles.
+3. Explore dealerships in that region, along with their current inventory and top-selling models.
+4. Make data-driven decisions about inventory distribution and marketing focus.
 
