@@ -1,11 +1,8 @@
-
-import streamlit as st
+import sys
+import subprocess
 import pandas as pd
 import numpy as np
 import pydeck as pdk
-import sys
-import subprocess
-
 try:
     from sklearn.cluster import KMeans
     from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
@@ -13,6 +10,7 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "scikit-learn"])
     from sklearn.cluster import KMeans
     from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+
 
 import random
 
