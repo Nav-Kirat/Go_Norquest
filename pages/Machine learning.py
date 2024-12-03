@@ -7,8 +7,9 @@ try:
 except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "scikit-learn"])
 
-from scikit-learn.cluster import KMeans
-from scikit-learn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+
 
 import random
 
