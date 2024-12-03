@@ -1,19 +1,18 @@
-import sys
 import subprocess
+import sys
+
+try:
+    import sklearn
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "scikit-learn"])
+
+import streamlit as st
 import pandas as pd
 import numpy as np
 import pydeck as pdk
-try:
-    from sklearn.cluster import KMeans
-    from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "scikit-learn"])
-    from sklearn.cluster import KMeans
-    from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
-
-
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 import random
-
 
 # Load datasets
 df_used = pd.read_csv("app_files/used_cars.csv")
