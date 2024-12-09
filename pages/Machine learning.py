@@ -137,7 +137,7 @@ car_make = st.selectbox("Car Make (Optional)", options=["None"] + car_makes)
 car_drivetrain = st.selectbox("Select Drivetrain (Optional)", options=["None"] + list(encoder.categories_[0]))
 
 # Mileage input
-car_mileage = st.slider("Car Mileage (miles)", min_value=0, max_value=200000, value=50000, step=5000)
+car_mileage = st.slider("Car Mileage", min_value=0, max_value=200000, value=50000, step=5000)
 
 # Submit Button
 submitted = st.button("🔮 Classify and Locate Dealerships")
