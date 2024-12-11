@@ -61,8 +61,7 @@ Segments dealerships by the ratio of new to used car sales, using K-Means to cla
 
 ---
 
-## 📊 Power BI Dashboard: Dealership Sales and Inventory Analysis
-
+## 📊 Power BI Dashboard: Dealership Sales and Inventory Analysis [Dashboard Link](https://github.com/Nav-Kirat/Go_Norquest/blob/master/Dashboard_v2%202.pbix)
 The Power BI dashboard provides an interactive platform for exploring dealership performance and vehicle sales data across Edmonton. It includes:
 
 ### 🛠️ Key Features
